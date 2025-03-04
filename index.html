@@ -1,16 +1,33 @@
-<div id="codeex">
-    <div role="radiogroup" aria-labelledby="gdesc1" id="example">
-        <h3 id="gdesc1">Pizza Crust</h3>
-        <div id="rb1" role="radio" aria-checked="false" tabindex="0">
-          Regular crust
-       </div>
+<!DOCTYPE html>
+<html>
+<head>
+<title>Radio Button Auto-Switch</title>
+</head>
+<body>
 
-       <div id="rb2" role="radio" aria-checked="false" tabindex="-1">
-          Deep dish
-       </div>
+<form id="radioForm">
+  <input type="radio" id="radio1" name="radioGroup" value="1" checked>
+  <label for="radio1">Option 1</label><br>
 
-       <div id="rb3" role="radio" aria-checked="false" tabindex="-1">
-          Thin crust
-       </div>
-   </div>
-</div>
+  <input type="radio" id="radio2" name="radioGroup" value="2">
+  <label for="radio2">Option 2</label><br>
+
+  <input type="radio" id="radio3" name="radioGroup" value="3">
+  <label for="radio3">Option 3</label>
+</form>
+
+<script>
+  const radios = document.querySelectorAll('input[name="radioGroup"]');
+  let currentIndex = 0;
+
+  function switchRadio() {
+    radios[currentIndex].checked = false;
+    currentIndex = (currentIndex + 1) % radios.length;
+    radios[currentIndex].checked = true;
+  }
+
+  setInterval(switchRadio, 30000); // 30000 milliseconds = 30 seconds
+</script>
+
+</body>
+</html>
