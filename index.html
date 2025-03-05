@@ -1,33 +1,182 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Radio Button Auto-Switch</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Dropdown Menus</title>
+    <style>
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-button {
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            padding: 10px 15px;
+            cursor: pointer;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .dropdown-content.show {
+            display: block;
+        }
+
+        .dropdown-content li {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            cursor: pointer;
+        }
+
+        .dropdown-content li:hover, .dropdown-content li:focus {
+            background-color: #f1f1f1;
+        }
+
+        .select-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .select-button {
+            background-color: #e0e0e0;
+            border: 1px solid #ccc;
+            padding: 8px 12px;
+            cursor: pointer;
+            width: 150px;
+            text-align: left;
+        }
+
+        .select-list {
+            display: none;
+            position: absolute;
+            background-color: white;
+            border: 1px solid #ccc;
+            width: 150px;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            z-index: 1;
+        }
+
+        .select-list.show {
+            display: block;
+        }
+
+        .select-list li {
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+
+        .select-list li:hover, .select-list li:focus {
+            background-color: #f1f1f1;
+        }
+
+    </style>
 </head>
 <body>
 
-<form id="radioForm">
-  <input type="radio" id="radio1" name="radioGroup" value="1" checked>
-  <label for="radio1">Option 1</label><br>
+    <h1>Simple Dropdown Menus</h1>
 
-  <input type="radio" id="radio2" name="radioGroup" value="2">
-  <label for="radio2">Option 2</label><br>
+    <div class="dropdown">
+        <button class="dropdown-button" aria-haspopup="true" aria-expanded="false" aria-controls="myDropdown">Dropdown Menu</button>
+        <ul class="dropdown-content" id="myDropdown" role="menu" aria-label="Dropdown Options">
+            <li role="menuitem" tabindex="-1">Option 1</li>
+            <li role="menuitem" tabindex="-1">Option 2</li>
+            <li role="menuitem" tabindex="-1">Option 3</li>
+        </ul>
+    </div>
 
-  <input type="radio" id="radio3" name="radioGroup" value="3">
-  <label for="radio3">Option 3</label>
-</form>
+    <div class="select-dropdown">
+        <button class="select-button" aria-haspopup="true" aria-expanded="false" aria-controls="mySelect">Select an Option</button>
+        <ul class="select-list" id="mySelect" role="listbox" aria-label="Select Options">
+            <li role="option" tabindex="-1">Choice A</li>
+            <li role="option" tabindex="-1">Choice B</li>
+            <li role="option" tabindex="-1">Choice C</li>
+        </ul>
+    </div>
 
-<script>
-  const radios = document.querySelectorAll('input[name="radioGroup"]');
-  let currentIndex = 0;
+    <h2>Native Select Element</h2>
+    <label for="nativeSelect">Select an option:</label>
+    <select id="nativeSelect">
+        <option value="option1">Option 1</option>
+        <option value="option2">Option 2</option>
+        <option value="option3">Option 3</option>
+    </select>
 
-  function switchRadio() {
-    radios[currentIndex].checked = false;
-    currentIndex = (currentIndex + 1) % radios.length;
-    radios[currentIndex].checked = true;
-  }
+    <script>
+        const dropdownButtons = document.querySelectorAll('.dropdown-button, .select-button');
 
-  setInterval(switchRadio, 5000); // 30000 milliseconds = 30 seconds
-</script>
+        dropdownButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const expanded = button.getAttribute('aria-expanded') === 'true';
+                button.setAttribute('aria-expanded', !expanded);
+                const menu = document.getElementById(button.getAttribute('aria-controls'));
+                menu.classList.toggle('show');
+            });
+        });
+
+        document.addEventListener('click', (event) => {
+            dropdownButtons.forEach(button => {
+                const menu = document.getElementById(button.getAttribute('aria-controls'));
+                if (!button.contains(event.target) && !menu.contains(event.target)) {
+                    menu.classList.remove('show');
+                    button.setAttribute('aria-expanded', 'false');
+                }
+            });
+        });
+
+        const menuItems = document.querySelectorAll('.dropdown-content li, .select-list li');
+
+        menuItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const menu = item.parentElement;
+                menu.classList.remove('show');
+                const button = document.querySelector(`[aria-controls="${menu.id}"]`);
+                button.setAttribute('aria-expanded', 'false');
+                if (button.classList.contains("select-button")){
+                    button.textContent = item.textContent;
+                }
+            });
+        });
+
+        document.addEventListener('keydown', function(event) {
+          if (event.key === 'Escape') {
+            document.querySelectorAll('.dropdown-content, .select-list').forEach(menu => menu.classList.remove('show'));
+            document.querySelectorAll('.dropdown-button, .select-button').forEach(button => button.setAttribute('aria-expanded', 'false'));
+          }
+        });
+
+        menuItems.forEach(item => {
+            item.addEventListener('keydown', (event) => {
+                const items = Array.from(item.parentElement.children);
+                const currentIndex = items.indexOf(item);
+
+                if (event.key === 'ArrowDown') {
+                    event.preventDefault();
+                    const nextIndex = (currentIndex + 1) % items.length;
+                    items[nextIndex].focus();
+                } else if (event.key === 'ArrowUp') {
+                    event.preventDefault();
+                    const prevIndex = (currentIndex - 1 + items.length) % items.length;
+                    items[prevIndex].focus();
+                }
+            });
+        });
+
+    </script>
 
 </body>
 </html>
